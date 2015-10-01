@@ -56,7 +56,7 @@ private:
      enum { MaxLines = 50};
 
     typedef struct _gridInfo {
-        QString widgetType, widgetText, widgetChannel, command, comlab;
+        QString widgetType, widgetText, widgetHeight, widgetChannel, command, comlab;
         QString formats[2];
         int nbElem,span;
         bool textPresent;
@@ -72,6 +72,7 @@ private:
     void writeCloseProperty(QByteArray *array);
     void writeTaggedString(QString tag, QString value, QByteArray *array);
     void setColor(QString property, int r, int g, int b, int alpha, QByteArray *array);
+    void setGeometry(int x, int y, int width, int height, QByteArray *array);
     void writeItemRowCol(int &row, int &column,  int span, QByteArray *array);
     void writeOpenTag(QString tag,  QByteArray *array);
     void writeCloseTag(QString tag,  QByteArray *array);
@@ -87,11 +88,12 @@ private:
                     QString calcpv, QString calc, QString visibility, bool transparent, QColor fg, QColor bg, QByteArray *array);
 
     void writeChoice(QString pv, QByteArray *array);
+    void writeMenu(QString pv, QByteArray *array);
     void writeWheelswitch(QString format, QString pv, QByteArray *array);
     void writeTogglebutton(QString pv, QByteArray *array);
     void writeLineEdit(QString format, QString pv, QByteArray *array);
     void writeShellCommand(QString label, QString command, QByteArray *array);
-    void  replaceStrings(gridInfo &grid);
+    void replaceStrings(gridInfo &grid);
 
     QBuffer *buffer;
 
