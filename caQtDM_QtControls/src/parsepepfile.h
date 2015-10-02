@@ -63,7 +63,7 @@ private:
         QColor fg, bg;
     } gridInfo;
 
-    void TreatFile(int &nbRows, int &nbCols, QFile *file);
+    void TreatFile(int &nbRows, int &nbCols, QColor &bgColor, QFile *file);
     void DisplayFile(int nbRows, int nbCols, QByteArray *array);
 
     void getColumnPositions(int nbItems, int actualGridColumn, int spanGrid, int pos[], int span[]);

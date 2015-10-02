@@ -34,6 +34,7 @@ ParsePepFile::ParsePepFile(QString filename, bool willprint)
 
     QFile *file = new QFile;
     int nbRows, nbCols;
+    QColor bgColor;
 
     willPrint = willprint;
 
@@ -55,13 +56,22 @@ ParsePepFile::ParsePepFile(QString filename, bool willprint)
         maxCols[j] = 0;
     }
 
+    buffer = new QBuffer();
+
+    // parese file
+    file->setFileName(filename);
+    bgColor = QColor(218, 218, 218, 255); // default bg color is gray, can be overwritten with !qtbg
+    TreatFile(nbRows, nbCols, bgColor, file);
+
+    PRINT(printf("nbRows=%d nbCols=%d\n", nbRows, nbCols));
+
     header = QString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
            "<ui version=\"4.0\">\n"
            "<class>MainWindow</class>\n"
            "<widget class=\"QMainWindow\" name=\"MainWindow\">\n"
            "<property name=\"styleSheet\">\n"
            "<string>\n"
-           "QWidget#centralWidget {background: rgba(255, 255, 255, 255); }\n"
+           "QWidget#centralWidget {background: " + bgColor.name() + "; }\n"
            "caLineEdit {border-radius: 1px;background: lightyellow; color: black;}\n"
            "</string>\n"
            "</property>\n"
@@ -69,29 +79,19 @@ ParsePepFile::ParsePepFile(QString filename, bool willprint)
            "<layout class=\"QGridLayout\" name=\"gridLayout\">\n"
            "<item row=\"0\" column=\"0\">\n"
            "<layout class=\"QGridLayout\" name=\"gridLayout\">\n"
-           " <property name=\"spacing\">\n"
+           "<property name=\"spacing\">\n"
            "<number>5</number>\n"
            "</property>\n");
-
-
-    footer = QString("</layout></item></layout></widget></widget></ui>");
 
     // copy first header to our byte array
     QByteArray *array= new QByteArray();
     array->append(header);
 
-    buffer = new QBuffer();
-
-    // parese file
-    file->setFileName(filename);
-    TreatFile(nbRows, nbCols, file);
-
-    PRINT(printf("nbRows=%d nbCols=%d\n", nbRows, nbCols));
-
     // fill array with the scanned data
     DisplayFile(nbRows, nbCols, array);
 
     // and finish with the footer
+    footer = QString("</layout></item></layout></widget></widget></ui>");
     array->append(footer);
 
     // fill buffer with the byte array data
@@ -104,7 +104,7 @@ ParsePepFile::ParsePepFile(QString filename, bool willprint)
     delete array;
 }
 
-void ParsePepFile::TreatFile(int &nbRows, int &nbCols, QFile *file)
+void ParsePepFile::TreatFile(int &nbRows, int &nbCols, QColor &bgColor, QFile *file)
 {
     int grid = 1;
     int ll;
@@ -158,14 +158,15 @@ void ParsePepFile::TreatFile(int &nbRows, int &nbCols, QFile *file)
         if(line.size() == 0) {
 
         }
-        // we have a grid definition at the beginning of the file
-        else if(line.contains("#!grid")) {
+        else if (line.contains("#!grid")) {
             grid = elements.at(1).toInt();
             if(grid > MaxGrid) {
                 printf("parse pep file -- grid value exceeds the maximum of %d\n", MaxGrid);
                 grid = MaxGrid;
             }
             PRINT(printf("grid=%d\n", grid));
+        } else if(line.contains("#!qtbg")) {
+            bgColor = QColor(elements.at(1));
         } else if(line.contains("channel")) {
         } else if(line.at(0) != QChar('#')) {
 
@@ -568,28 +569,28 @@ void ParsePepFile::displayItem(int actualgridRow,int actualgridColumn, gridInfo 
         writeOpenTag("widget class=\"caFrame\" name=\"caframe\"", array);
         writeOpenProperty("maximumSize", array);
         writeOpenTag("size", array);
-        writeTaggedString("width", "21", array);
-        writeTaggedString("height", "21", array);
+        writeTaggedString("width", "24", array);
+        writeTaggedString("height", "24", array);
         writeCloseTag("size", array);
         writeCloseProperty(array);
         writeOpenProperty("minimumSize", array);
         writeOpenTag("size", array);
-        writeTaggedString("width", "21", array);
-        writeTaggedString("height", "21", array);
+        writeTaggedString("width", "24", array);
+        writeTaggedString("height", "24", array);
         writeCloseTag("size", array);
         writeCloseProperty(array);
 
         writeOpenTag("widget class=\"caLed\" name=\"caled\"", array);
         writeOpenProperty("maximumSize", array);
         writeOpenTag("size", array);
-        writeTaggedString("width", "15", array);
-        writeTaggedString("height", "15", array);
+        writeTaggedString("width", "18", array);
+        writeTaggedString("height", "18", array);
         writeCloseTag("size", array);
         writeCloseProperty(array);
         writeOpenProperty("minimumSize", array);
         writeOpenTag("size", array);
-        writeTaggedString("width", "15", array);
-        writeTaggedString("height", "15", array);
+        writeTaggedString("width", "18", array);
+        writeTaggedString("height", "18", array);
         writeCloseTag("size", array);
         writeCloseProperty(array);
         setGeometry(3, 3, 15, 15, array);
@@ -602,14 +603,14 @@ void ParsePepFile::displayItem(int actualgridRow,int actualgridColumn, gridInfo 
         writeOpenTag("widget class=\"caGraphics\" name=\"cagraphics\"", array);
         writeOpenProperty("maximumSize", array);
         writeOpenTag("size", array);
-        writeTaggedString("width", "21", array);
-        writeTaggedString("height", "21", array);
+        writeTaggedString("width", "24", array);
+        writeTaggedString("height", "24", array);
         writeCloseTag("size", array);
         writeCloseProperty(array);
         writeOpenProperty("minimumSize", array);
         writeOpenTag("size", array);
-        writeTaggedString("width", "21", array);
-        writeTaggedString("height", "21", array);
+        writeTaggedString("width", "24", array);
+        writeTaggedString("height", "24", array);
         writeCloseTag("size", array);
         writeCloseProperty(array);
         writeSimpleProperty("channel", "string", grid.widgetChannel, array);
